@@ -1,6 +1,8 @@
 import React from 'react'
 import Navbar from '../../components/Navbar/Navbar'
 import NoteCard from '../../components/Cards/NoteCard'
+import { MdAdd } from 'react-icons/md'
+import AddEditNotes from './AddEditNotes'
 
 const Home = () => {
     return (
@@ -19,41 +21,14 @@ const Home = () => {
                         onDelete={() => { }}
                         onPinNote={() => { }}
                     />
-
-                    <NoteCard
-                        title='Meeting on 7th April'
-                        date='3rd Apr 2024'
-                        content='Meeting on 7th of April at the Café across the bridge'
-                        tags='#Meeting'
-                        isPinned={true}
-                        onEdit={() => { }}
-                        onDelete={() => { }}
-                        onPinNote={() => { }}
-                    />
-
-                    <NoteCard
-                        title='Meeting on 7th April'
-                        date='3rd Apr 2024'
-                        content='Meeting on 7th of April at the Cafe across the bridge'
-                        tags='#Meeting'
-                        isPinned={true}
-                        onEdit={() => { }}
-                        onDelete={() => { }}
-                        onPinNote={() => { }}
-                    />
-
-                    <NoteCard
-                        title='Meeting on 7th April'
-                        date='3rd Apr 2024'
-                        content='Meeting on 7th of April at the Cafe across the bridge'
-                        tags='#Meeting'
-                        isPinned={true}
-                        onEdit={() => { }}
-                        onDelete={() => { }}
-                        onPinNote={() => { }}
-                    />
                 </div>
             </div>
+
+            <button className='w-16 h-16 flex items-center justify-center rounded-2xl bg-primary hover:bg-blue-600 absolute right-10 bottom-10' onClick={() => { }}>
+                <MdAdd className='text-[32px] text-white' />
+            </button>
+
+            <AddEditNotes />
         </>
     )
 }
