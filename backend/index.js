@@ -6,11 +6,12 @@ const mongoose = require('mongoose');
 mongoose.connect(config.connectionString);
 
 const User = require('./models/user.model');
+const Note = require('./models/note.model');
 
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8000;
 
 const jwt = require('jsonwebtoken');
 const { authenticateToken } = require('./utilities');
@@ -100,17 +101,11 @@ app.post('/login', async (req, res) => {
 	}
 
 	if (userInfo.email == email && userInfo.password == password) {
-		const user = { user: userInfo };
+		const user = { id: userInfo._id, email: userInfo.email }; // Consistent payload structure
 		const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
 			expiresIn: '36000m',
 		});
-
-		return res.json({
-			error: false,
-			message: 'Login successful',
-			userInfo,
-			accessToken,
-		});
+		return res.json({ accessToken });
 	} else {
 		return res.status(400).json({
 			error: true,
@@ -119,6 +114,49 @@ app.post('/login', async (req, res) => {
 	}
 });
 
-app.listen(8000, console.log(`Server running on port ${PORT}`));
+// Add Note
+app.post('/add-note', authenticateToken, async (req, res) => {
+	const { title, content, tags } = req.body;
+	const user = req.user.user;
+
+	if (!title) {
+		return res
+			.status(400)
+			.json({ error: true, message: 'Title is required' });
+	}
+
+	if (!content) {
+		return res
+			.status(400)
+			.json({ error: true, message: 'Content is required' });
+	}
+
+	try {
+		const note = new Note({
+			title,
+			content,
+			tags: tags || [],
+			userId: user._id,
+		});
+
+		await note.save();
+
+		return res.json({
+			error: false,
+			note,
+			message: 'Note added successfully',
+		});
+	} catch (error) {
+		console.error('Error adding note:', error); // Logs real error
+		return res.status(500).json({
+			error: true,
+			message: error.message || 'Internal Server Error',
+		});
+	}
+});
+
+app.listen(PORT, () => {
+	console.log(`Server running on port ${PORT}`);
+});
 
 module.exports = app;
