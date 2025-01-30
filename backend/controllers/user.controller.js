@@ -2,6 +2,9 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 
+// @desc    Create a new user
+// @route   POST /api/users/create-account
+// @access  Public
 const createAccount = async (req, res) => {
 	const { fullName, email, password } = req.body;
 
@@ -16,15 +19,15 @@ const createAccount = async (req, res) => {
 			.status(400)
 			.json({ error: true, message: 'Password is required' });
 	}
-	
+
 	const isUser = await User.findOne({ email: email });
-	
+
 	if (isUser) {
 		return res.json({ error: true, message: 'User already exist' });
 	}
-	
+
 	const hashedPassword = await bcrypt.hash(password, 10);
-	
+
 	const user = new User({ fullName, email, password: hashedPassword });
 	await user.save();
 
@@ -40,6 +43,9 @@ const createAccount = async (req, res) => {
 	});
 };
 
+// @desc    Login user
+// @route   POST /api/users/login
+// @access  Public
 const login = async (req, res) => {
 	const { email, password } = req.body;
 
@@ -87,4 +93,27 @@ const login = async (req, res) => {
 	}
 };
 
-module.exports = { createAccount, login };
+// @desc    Get user
+// @route   GET /api/users/get-user
+// @access  Private
+const getUser = async (req, res) => {
+	const { user } = req.user;
+
+	const isUser = await User.findOne({ _id: user.id });
+
+	if (!isUser) {
+		return res.sendStatus(401);
+	}
+
+	return res.json({
+		user: {
+			fullName: isUser.fullName,
+			email: isUser.email,
+			id: isUser._id,
+			createdOn: isUser.createdOn,
+		},
+		message: '',
+	});
+};
+
+module.exports = { createAccount, login, getUser };

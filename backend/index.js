@@ -18,8 +18,8 @@ app.get('/', (req, res) => {
 	res.json({ data: 'hello' });
 });
 
-app.use('', userRoutes);
-app.use('', noteRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Error handling middleware
 app.use((req, res, next) => {

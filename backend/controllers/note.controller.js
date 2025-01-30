@@ -1,5 +1,8 @@
 const Note = require('../models/note.model');
 
+// @desc    Add new note
+// @route   POST /api/notes/add-note
+// @access  Public
 const addNote = async (req, res) => {
 	const { title, content, tags } = req.body;
 	const user = req.user.user;
@@ -40,6 +43,9 @@ const addNote = async (req, res) => {
 	}
 };
 
+// @desc    Edit note
+// @route   POST  /api/notes/edit-note/:noteId
+// @access  Public
 const editNote = async (req, res) => {
 	if (!req.user) {
 		return res
@@ -86,6 +92,9 @@ const editNote = async (req, res) => {
 	}
 };
 
+// @desc    Get all notes
+// @route   PUT api/notes/get-all-notes
+// @access  Public
 const getAllNote = async (req, res) => {
 	const userId = req.user.user.id;
 
@@ -107,4 +116,74 @@ const getAllNote = async (req, res) => {
 	}
 };
 
-module.exports = { addNote, editNote, getAllNote };
+// @desc    Delete note
+// @route   DELETE api/notes/delete-note/:noteId
+// @access  Public
+const deleteNote = async (req, res) => {
+	const noteId = req.params.noteId;
+	const userId = req.user.user.id;
+
+	try {
+		const note = await Note.findOne({ _id: noteId, userId });
+
+		if (!note) {
+			return res
+				.status(404)
+				.json({ error: true, message: 'Note not found' });
+		}
+
+		await Note.deleteOne({ _id: noteId, userId });
+
+		return res.json({
+			error: false,
+			message: 'Note deleted successfully',
+		});
+	} catch (error) {
+		return res.status(500).json({
+			error: true,
+			message: 'Internal Server Error',
+		});
+	}
+};
+
+// @desc    Update isPinned Value of a note
+// @route   PUT api/notes/update-note-pinned/:noteId
+// @access  Public
+const updateIsPinned = async (req, res) => {
+	if (!req.user) {
+		return res
+			.status(401)
+			.json({ error: true, message: 'User not authenticated' });
+	}
+
+	const noteId = req.params.noteId;
+	const { isPinned } = req.body;
+	const user = req.user.user;
+
+	try {
+		const note = await Note.findOne({ _id: noteId, userId: user.id });
+
+		if (!note) {
+			return res
+				.status(404)
+				.json({ error: true, message: 'Note not found' });
+		}
+
+		note.isPinned = isPinned || false;
+
+		await note.save();
+
+		return res.json({
+			error: false,
+			note,
+			message: 'Note updated successfully',
+		});
+	} catch (error) {
+		console.error(error);
+		return res
+			.status(500)
+			.json({ error: true, message: 'Internal Server Error' });
+	}
+};
+
+module.exports = { addNote, editNote, getAllNote, deleteNote, updateIsPinned };
