@@ -41,8 +41,6 @@ const addNote = async (req, res) => {
 };
 
 const editNote = async (req, res) => {
-	console.log('User:', req.user); // 🔍 Debugging
-
 	if (!req.user) {
 		return res
 			.status(401)
@@ -51,7 +49,7 @@ const editNote = async (req, res) => {
 
 	const noteId = req.params.noteId;
 	const { title, content, tags, isPinned } = req.body;
-	const user = req.user;
+	const user = req.user.user;
 
 	if (!title && !content && !tags) {
 		return res
@@ -60,7 +58,7 @@ const editNote = async (req, res) => {
 	}
 
 	try {
-		const note = await Note.findOne({ _id: noteId, userId: user.user.id });
+		const note = await Note.findOne({ _id: noteId, userId: user.id });
 
 		if (!note) {
 			return res
@@ -88,4 +86,25 @@ const editNote = async (req, res) => {
 	}
 };
 
-module.exports = { addNote, editNote };
+const getAllNote = async (req, res) => {
+	const userId = req.user.user.id;
+
+	try {
+		const notes = await Note.find({ userId }).sort({
+			isPinned: -1,
+		});
+
+		return res.json({
+			error: false,
+			notes,
+			message: 'All notes retrieved successfully',
+		});
+	} catch (error) {
+		return res.status(500).json({
+			error: true,
+			message: 'Internal Server Error',
+		});
+	}
+};
+
+module.exports = { addNote, editNote, getAllNote };
