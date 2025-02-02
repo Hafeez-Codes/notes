@@ -23,7 +23,6 @@ const Home = () => {
     const getUserInfo = async () => {
         const token = localStorage.getItem('token'); // Retrieve token
         if (!token) {
-            console.warn("No token found, logging out...");
             localStorage.clear();
             navigate('/login');
             return;

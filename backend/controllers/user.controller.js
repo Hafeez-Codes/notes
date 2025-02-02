@@ -88,7 +88,6 @@ const login = async (req, res) => {
 
         return res.json({ accessToken });
     } catch (error) {
-        console.error('Login error:', error);
         return res
             .status(500)
             .json({ error: true, message: 'Internal Server Error' });
@@ -100,11 +99,9 @@ const login = async (req, res) => {
 // @access  Private
 const getUser = async (req, res) => {
     const userId = req.user.user.id; // Ensure correct extraction of user ID
-    console.log("Extracted user ID:", userId); // Debugging statement
 
     try {
         const isUser = await User.findById(userId); // Use findById for better readability
-        console.log("User found:", isUser); // Debugging statement
 
         if (!isUser) {
             return res.sendStatus(401);
@@ -120,7 +117,6 @@ const getUser = async (req, res) => {
             message: '',
         });
     } catch (error) {
-        console.error('Error fetching user:', error);
         return res.status(500).json({ error: true, message: 'Internal Server Error' });
     }
 };

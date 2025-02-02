@@ -50,7 +50,6 @@ const SignUp = () => {
 
             if (response.data && response.data.accessToken) {
                 localStorage.setItem('token', response.data.accessToken)
-                console.log("Token saved:", response.data.accessToken); // Debugging statement
                 navigate('/dashboard')
             }
         } catch (error) {
