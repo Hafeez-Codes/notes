@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react'
 import TagInput from '../../components/inputs/TagInput'
 import { MdClose } from 'react-icons/md'
 import Modal from 'react-modal' // Add this import
+import axiosinstance from '../../utils/axiosinstance'
 
 Modal.setAppElement('#root') // Add this line
 
-const AddEditNotes = ({ noteData, type, onClose }) => {
+const AddEditNotes = ({ noteData, type, getAllNotes, onClose }) => {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [tags, setTags] = useState([])
@@ -22,12 +23,51 @@ const AddEditNotes = ({ noteData, type, onClose }) => {
 
     // Add Note
     const addNewNote = async () => {
+        try {
+            const response = await axiosinstance.post('/notes/add-note', {
+                title,
+                content,
+                tags
+            })
 
+            if (response.data && response.data.note) {
+                getAllNotes()
+                onClose()
+            }
+        } catch (error) {
+            if (
+                error.response &&
+                error.response.data &&
+                error.response.data.message
+            ) {
+                setError(error.response.data.message)
+            }
+        }
     }
 
     // Edit Note
     const editNote = async () => {
+        const noteId = noteData._id
+        try {
+            const response = await axiosinstance.put('/notes/edit-note/' + noteId, {
+                title,
+                content,
+                tags
+            })
 
+            if (response.data && response.data.note) {
+                getAllNotes()
+                onClose()
+            }
+        } catch (error) {
+            if (
+                error.response &&
+                error.response.data &&
+                error.response.data.message
+            ) {
+                setError(error.response.data.message)
+            }
+        }
     }
 
     const handleAddNote = () => {
@@ -86,7 +126,7 @@ const AddEditNotes = ({ noteData, type, onClose }) => {
             {error && <p className='text-red-500 text-xs pt-4'>{error}</p>}
 
             <button className="btn-primary font-medium mt-5 p-3" onClick={handleAddNote}>
-                ADD
+                {type === 'edit' ? 'UPDATE' : 'ADD'}
             </button>
         </div>
     )

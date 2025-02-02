@@ -93,7 +93,7 @@ const editNote = async (req, res) => {
 };
 
 // @desc    Get all notes
-// @route   PUT api/notes/get-all-notes
+// @route   GET /api/notes/get-all-notes
 // @access  Public
 const getAllNote = async (req, res) => {
 	const userId = req.user.user.id;
