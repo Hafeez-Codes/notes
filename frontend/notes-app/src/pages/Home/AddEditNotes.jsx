@@ -6,7 +6,7 @@ import axiosinstance from '../../utils/axiosinstance'
 
 Modal.setAppElement('#root') // Add this line
 
-const AddEditNotes = ({ noteData, type, getAllNotes, onClose }) => {
+const AddEditNotes = ({ noteData, type, getAllNotes, onClose, showToastMessage }) => {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [tags, setTags] = useState([])
@@ -31,6 +31,7 @@ const AddEditNotes = ({ noteData, type, getAllNotes, onClose }) => {
             })
 
             if (response.data && response.data.note) {
+                showToastMessage('Note Added Successfully')
                 getAllNotes()
                 onClose()
             }
@@ -48,6 +49,7 @@ const AddEditNotes = ({ noteData, type, getAllNotes, onClose }) => {
     // Edit Note
     const editNote = async () => {
         const noteId = noteData._id
+        
         try {
             const response = await axiosinstance.put('/notes/edit-note/' + noteId, {
                 title,
@@ -56,6 +58,7 @@ const AddEditNotes = ({ noteData, type, getAllNotes, onClose }) => {
             })
 
             if (response.data && response.data.note) {
+                showToastMessage('Note Updated Successfully')
                 getAllNotes()
                 onClose()
             }

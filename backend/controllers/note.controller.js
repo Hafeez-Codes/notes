@@ -186,4 +186,46 @@ const updateIsPinned = async (req, res) => {
 	}
 };
 
-module.exports = { addNote, editNote, getAllNote, deleteNote, updateIsPinned };
+// @desc    Search for notes
+// @route   GET api/notes/search-notes/
+// @access  Public
+const searchNotes = async (req, res) => {
+	const user = req.user.user;
+	const { query } = req.query;
+
+	if (!query) {
+		return res
+			.status(400)
+			.json({ error: true, message: 'Search query is required' });
+	}
+
+	try {
+		const matchingNotes = await Note.find({
+			userId: user.id,
+			$or: [
+				{ title: { $regex: new RegExp(query, 'i') } },
+				{ content: { $regex: new RegExp(query, 'i') } },
+			],
+		});
+
+		return res.json({
+			error: false,
+			notes: matchingNotes,
+			message: 'Notes matching the search query retrieved succesfully',
+		});
+	} catch (error) {
+		return res.status(500).json({
+			error: true,
+			message: 'Internal Server Error',
+		});
+	}
+};
+
+module.exports = {
+	addNote,
+	editNote,
+	getAllNote,
+	deleteNote,
+	updateIsPinned,
+	searchNotes,
+};
